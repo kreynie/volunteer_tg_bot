@@ -46,7 +46,7 @@ async def user_addition_state(message: Message, uow: UOWDep = UnitOfWork()):
     except EntityAlreadyExists:
         return await message.answer("Пользователь уже есть в базе")
 
-    await message.answer(f"Добавлен {hbold(message.user.telegram_id)}")
+    await message.answer(f"Добавлен {hbold(user.telegram_id)}")
 
 
 @router.message(TextFilter(texts.remove_users_text))
