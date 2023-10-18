@@ -1,14 +1,16 @@
 from aiogram import Router
 from aiogram.types import Message
+
 from src.filters import TextFilter
-from src.schemas.shift import ToggleShiftSchema
+from src.schemas.shift import ShiftLogSchema, ToggleShiftSchema
+from src.schemas.sort import QueryOrderBySchema
 from src.schemas.user import UserGetSchema
 from src.services.shifts import ShiftsService
 from src.services.users import UsersService
+from src.utils import texts
 from src.utils.dependencies import UOWDep
 from src.utils.shift_enum import ShiftEnum
 from src.utils.unitofwork import UnitOfWork
-from src.utils import texts
 
 router = Router(name=__name__)
 
@@ -27,8 +29,15 @@ async def exit_shift(message: Message):
 async def get_user_shifts(message: Message, uow: UOWDep = UnitOfWork()):
     user_data = UserGetSchema(telegram_id=message.from_user.id)
     user = await UsersService(uow).get_user(user_data)
-    users_shifts = await get_shifts_history(user.id)
-    await message.answer(users_shifts)
+    order_by = QueryOrderBySchema(column_name="time", sort_desc=True)
+    shifts_limit = 6
+    shift_logs = await ShiftsService(uow).get_shift_history(
+        user_id=user.id,
+        limit=shifts_limit,
+        order_by=order_by,
+    )
+    user_shifts_text = format_shifts_history(shift_logs, number=shifts_limit)
+    await message.answer(user_shifts_text)
 
 
 async def toggle_shift(message: Message, shift_enum: ShiftEnum, uow: UOWDep = UnitOfWork()):
@@ -41,24 +50,29 @@ async def toggle_shift(message: Message, shift_enum: ShiftEnum, uow: UOWDep = Un
     )
     shift_id = await ShiftsService(uow).toggle_shift(shift)
     if shift_id:
-        await message.answer("Записано")
-        return
+        return await message.answer("Записано")
     await message.answer("Ошибка в записи")
 
 
-async def get_shifts_history(
-        user_id: int | None = None,
-        limit: int = 10,
-        uow: UOWDep = UnitOfWork()
+def format_shifts_history(
+        shift_logs: list[ShiftLogSchema],
+        number: int,
+        offset: int = 0,
+        overall_amount: int = 0,
 ) -> str:
-    shift_logs = await ShiftsService(uow).get_shift_history(user_id, limit)
     if not shift_logs:
         return "Нет последних записей"
     shift_list = [
-        (f"ID: {shift.user_id}\n" if user_id is None else "") +
-        (f"Состояние: {ShiftEnum(shift.shift_action_id).name}\n"
-         f"Дата/время: {shift.time:%d.%m %H:%M}")
+        f"ID: {shift.user_id}\n"
+        f"Состояние: {ShiftEnum(shift.shift_action_id).name}\n"
+        f"Дата/время: {shift.time:%d.%m %H:%M}"
         for shift in shift_logs
     ]
     shift_list = "\n\n".join(shift_list)
-    return f"Последние {limit} записей:\n{shift_list}"
+    if not offset and not overall_amount:
+        return f"Последние {number} записей:\n{shift_list}"
+    elif offset and not overall_amount:
+        return f"Записи {offset}-{number}:\n{shift_list}"
+    elif not offset and overall_amount:
+        return f"Последние {number} ({overall_amount}) записей:\n{shift_list}"
+    return f"Записи {offset}-{number} ({overall_amount}):\n{shift_list}"

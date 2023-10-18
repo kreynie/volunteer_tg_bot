@@ -1,8 +1,10 @@
-from sqlalchemy import insert, select, update, delete
+from sqlalchemy import delete, insert, select, update
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError, NoReferenceError, NoResultFound
+from sqlalchemy.orm import MappedColumn
 
-from src.database.exceptions import EntityAlreadyExists, EntityNotFound, handle_database_error
+from src.database.exceptions import EntityNotFound, handle_database_error
+from src.schemas.sort import QueryOrderBySchema
 
 
 class SQLAlchemyRepository:
@@ -27,14 +29,22 @@ class SQLAlchemyRepository:
         return res.scalar_one()
 
     @handle_database_error
-    async def find_all(self, offset: int = 0, limit: int = 0, filter_by: dict = None):
+    async def find_all(
+            self,
+            offset: int = 0,
+            limit: int = 0,
+            filter_by: dict | None = None,
+            order_by: list[MappedColumn] | None = None,
+    ):
         stmt = select(self.model)
         if filter_by:
-            stmt.filter_by(**filter_by)
+            stmt = stmt.filter_by(**filter_by)
+        if order_by:
+            stmt = stmt.order_by(*order_by)
         if offset:
-            stmt.offset(offset)
+            stmt = stmt.offset(offset)
         if limit:
-            stmt.limit(limit)
+            stmt = stmt.limit(limit)
         res = await self.session.execute(stmt)
         res = res.all()
         if res:
@@ -58,3 +68,14 @@ class SQLAlchemyRepository:
             return res.scalar_one()
         except NoResultFound:
             raise EntityNotFound
+
+    def build_order(self, order_by: QueryOrderBySchema | list[QueryOrderBySchema]) -> list[MappedColumn]:
+        if not isinstance(order_by, list):
+            order_by = [order_by]
+
+        new_order = []
+        for sort_schema in order_by:
+            column = getattr(self.model, sort_schema.column_name, None)
+            if column:
+                new_order.append(column.desc() if sort_schema.sort_desc else column.asc())
+        return new_order

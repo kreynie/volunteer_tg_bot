@@ -14,3 +14,8 @@ enter_shift = "Зашел 🟢"
 exit_shift = "Вышел 🔴"
 my_shifts = "Мои последние смены 📃"
 list_rules = "Правила модерации ⚠"
+
+previous_page = "⬅"
+previous_page_action = "previous"
+next_page = "➡"
+next_page_action = "next"
