@@ -36,6 +36,21 @@ async def add_rule(message: Message, state: FSMContext, uow: UOWDep = UnitOfWork
     await state.clear()
 
 
+@router.message(TextFilter(texts.remove_rule_text))
+async def set_removal_rule_state(message: Message, state: FSMContext):
+    await state.set_state(ManageRulesState.removal)
+    await message.answer("Пиши номер правила")
+
+
+# @router.message(ManageRulesState.removal)
+# async def remove_rule(message: Message, state: FSMContext, uow: UOWDep = UnitOfWork()):
+#     if not message.text or not message.text.isdigit():
+#         return await message.answer("Нужен номер правила")
+#     await RulesService(uow).delete_rule(int(message.text))
+#     await message.answer("Удалено")
+#     await state.clear()
+
+
 @router.callback_query(EditRulesCallback.filter(F.action == "edit"))
 async def callback_edit_rules(query: CallbackQuery, state: FSMContext):
     await state.set_state(ManageRulesState.editing)
@@ -45,20 +60,39 @@ async def callback_edit_rules(query: CallbackQuery, state: FSMContext):
 
 
 @router.message(ManageRulesState.editing)
-async def edit_rules_type_rule_id(message: Message, state: FSMContext):
-    message_cansel_text = "Мне нужен номер правила"
-    if not message.text:
-        return await message.answer(message_cansel_text)
-    if message.text.lower() == "отмена":
+@router.message(ManageRulesState.removal)
+async def manage_rules(message: Message, state: FSMContext, uow: UOWDep = UnitOfWork()):
+    if not message.text or not message.text.isdigit():
+        return await message.answer("Нужен номер правила")
+
+    current_state = await state.get_state()
+    if current_state == ManageRulesState.editing:
+        await state.update_data(editing_rule_id=int(message.text))
+        await state.set_state(ManageRulesState.rule_text)
+        await message.answer("Теперь текст, на который нужно заменить\n"
+                             'Если введен неверный номер, напиши "назад"\n'
+                             'Для отмены введи "отмена"')
+    elif current_state == ManageRulesState.removal:
+        await RulesService(uow).delete_rule(int(message.text))
+        await message.answer("Удалено")
         await state.clear()
-        return await message.answer("Редактирование отменено")
-    if not message.text.isdigit():
-        return await message.answer(message_cansel_text)
-    await state.update_data(editing_rule_id=int(message.text))
-    await state.set_state(ManageRulesState.rule_text)
-    await message.answer("Теперь текст, на который нужно заменить\n"
-                         'Если введен неверный номер, напиши "назад"\n'
-                         'Для отмены введи "отмена"')
+
+
+# @router.message(ManageRulesState.editing)
+# async def edit_rules_type_rule_id(message: Message, state: FSMContext):
+#     message_cansel_text = "Мне нужен номер правила"
+#     if not message.text:
+#         return await message.answer(message_cansel_text)
+#     if message.text.lower() == "отмена":
+#         await state.clear()
+#         return await message.answer("Редактирование отменено")
+#     if not message.text.isdigit():
+#         return await message.answer(message_cansel_text)
+#     await state.update_data(editing_rule_id=int(message.text))
+#     await state.set_state(ManageRulesState.rule_text)
+#     await message.answer("Теперь текст, на который нужно заменить\n"
+#                          'Если введен неверный номер, напиши "назад"\n'
+#                          'Для отмены введи "отмена"')
 
 
 @router.message(ManageRulesState.rule_text)

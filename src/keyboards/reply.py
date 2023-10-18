@@ -28,6 +28,7 @@ admin_keyboard = ReplyKeyboardMarkup(
         ],
         [
             KeyboardButton(text=texts.add_rule_text),
+            KeyboardButton(text=texts.remove_rule_text),
             KeyboardButton(text=texts.list_rules),
         ],
         [
@@ -46,17 +47,3 @@ reset_state = ReplyKeyboardMarkup(
     one_time_keyboard=True,
     input_field_placeholder="Нажми на кнопку, чтобы прекратить",
 )
-
-
-def keyboard_gen(
-        text: str | list[str],
-        one_time_keyboard: bool = False,
-        **kwargs,
-) -> ReplyKeyboardMarkup:
-    builder = ReplyKeyboardBuilder()
-
-    if isinstance(text, str):
-        text = [text]
-
-    [builder.button(text=button) for button in text]
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=one_time_keyboard, **kwargs)

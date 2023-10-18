@@ -20,6 +20,12 @@ class RulesService:
             await self.uow.commit()
             return rule_id
 
+    async def delete_rule(self, rule_id: int) -> int:
+        async with self.uow:
+            returned_rile_id = await self.uow.rules.delete_one(id=rule_id)
+            await self.uow.commit()
+            return returned_rile_id
+
     async def get_rules(self) -> list[RuleSchema]:
         async with self.uow:
             rules = await self.uow.rules.find_all()
