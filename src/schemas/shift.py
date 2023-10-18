@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from pydantic import BaseModel
+
 from .base import BaseSchema
 
 
@@ -7,7 +9,11 @@ class ShiftSchema(BaseSchema):
     name: str
 
 
-class ShiftLogSchema(BaseSchema):
+class ToggleShiftSchema(BaseModel):
     user_id: int
     shift_action_id: int
-    time: datetime
+    time: datetime | None
+
+
+class ShiftLogSchema(BaseSchema, ToggleShiftSchema):
+    pass

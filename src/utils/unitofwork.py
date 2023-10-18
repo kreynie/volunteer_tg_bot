@@ -2,11 +2,13 @@ from abc import ABC, abstractmethod
 
 from src.repositories import RolesRepository, ShiftLogsRepository, ShiftsRepository, UsersRepository
 from src.database.database import session_maker
+from src.repositories.rules import RulesRepository
 
 
 class IUnitOfWork(ABC):
     users: UsersRepository
     roles: RolesRepository
+    rules: RulesRepository
     shifts: ShiftsRepository
     shift_logs: ShiftLogsRepository
 
@@ -40,6 +42,7 @@ class UnitOfWork:
 
         self.users = UsersRepository(self.session)
         self.roles = RolesRepository(self.session)
+        self.rules = RulesRepository(self.session)
         self.shifts = ShiftsRepository(self.session)
         self.shift_logs = ShiftLogsRepository(self.session)
 

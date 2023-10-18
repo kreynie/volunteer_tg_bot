@@ -1,11 +1,18 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from src.utils import texts
 
 main_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Зашел 🟢"),
-            KeyboardButton(text="Вышел 🔴"),
+            KeyboardButton(text=texts.enter_shift),
+            KeyboardButton(text=texts.exit_shift),
+        ],
+        [
+            KeyboardButton(text=texts.my_shifts),
+        ],
+        [
+            KeyboardButton(text=texts.list_rules)
         ]
     ],
     resize_keyboard=True,
@@ -15,13 +22,16 @@ main_keyboard = ReplyKeyboardMarkup(
 admin_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Добавить пользователя ➕"),
-            KeyboardButton(text="Убрать пользователя ❌"),
-            KeyboardButton(text="Список 📃"),
+            KeyboardButton(text=texts.add_users_text),
+            KeyboardButton(text=texts.remove_users_text),
+            KeyboardButton(text=texts.list_users_text),
         ],
         [
-            KeyboardButton(text="Взять Telegram ID 🆔"),
-            KeyboardButton(text="Посмотреть логи 📅"),
+            KeyboardButton(text=texts.add_rule_text),
+            KeyboardButton(text=texts.list_rules),
+        ],
+        [
+            KeyboardButton(text=texts.list_shifts_text),
         ],
     ],
     resize_keyboard=True,
@@ -30,7 +40,7 @@ admin_keyboard = ReplyKeyboardMarkup(
 
 reset_state = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text="Готово ✅")]
+        [KeyboardButton(text=texts.done_text)]
     ],
     resize_keyboard=True,
     one_time_keyboard=True,

@@ -1,12 +1,15 @@
+from sqlalchemy.exc import DatabaseError
+
+
 class RepositoryError(Exception):
     pass
 
 
-class EntityNotFoundError(RepositoryError):
+class EntityNotFound(RepositoryError):
     pass
 
 
-class DatabaseError(RepositoryError):
+class EntityAlreadyExists(RepositoryError):
     pass
 
 
