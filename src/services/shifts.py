@@ -34,14 +34,21 @@ class ShiftsService:
             )
             if not shift_logs:
                 return []
-            shifts: list[ShiftSchema] = await self.uow.shifts.find_all()
-            shift_names = {shift.id: shift.name for shift in shifts}
+            shift_names = await self.get_shift_names()
 
-            shift_logs = [
-                ShiftLogSchema(
-                    shift_action_name=shift_names[log.shift_action_id],
-                    **log.model_dump(exclude_none=True),
-                )
-                for log in shift_logs
-            ]
-            return shift_logs
+            return self.__transform_shift_logs(shift_logs, shift_names)
+
+    async def get_shift_names(self):
+        shifts = await self.uow.shifts.find_all()
+        return {shift.id: shift.name for shift in shifts}
+
+    @staticmethod
+    def __transform_shift_logs(self, shift_logs, shift_names):
+        transformed_logs = []
+        for log in shift_logs:
+            transformed_log = ShiftLogSchema(
+                shift_action_name=shift_names[log.shift_action_id],
+                **log.model_dump(exclude_none=True),
+            )
+            transformed_logs.append(transformed_log)
+        return transformed_logs
