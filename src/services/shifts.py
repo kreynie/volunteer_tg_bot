@@ -26,20 +26,22 @@ class ShiftsService:
                 order_by = QueryOrderBySchema(column_name="id", sort_desc=True)
             order_by = self.uow.shift_logs.build_order(order_by)
 
-            history: list[ShiftLogSchema] = await self.uow.shift_logs.find_all(
+            shift_logs: list[ShiftLogSchema] = await self.uow.shift_logs.find_all(
                 offset=offset,
                 limit=limit,
                 filter_by={"user_id": user_id} if user_id else None,
                 order_by=order_by,
             )
+            if not shift_logs:
+                return []
             shifts: list[ShiftSchema] = await self.uow.shifts.find_all()
-            shifts_dict = {shift.id: shift.name for shift in shifts}
+            shift_names = {shift.id: shift.name for shift in shifts}
 
-            history = [
+            shift_logs = [
                 ShiftLogSchema(
-                    shift_action_name=shifts_dict[log.shift_action_id],
+                    shift_action_name=shift_names[log.shift_action_id],
                     **log.model_dump(exclude_none=True),
                 )
-                for log in history
+                for log in shift_logs
             ]
-            return history
+            return shift_logs
