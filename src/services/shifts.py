@@ -43,7 +43,7 @@ class ShiftsService:
         return {shift.id: shift.name for shift in shifts}
 
     @staticmethod
-    def __transform_shift_logs(self, shift_logs, shift_names):
+    def __transform_shift_logs(shift_logs, shift_names):
         transformed_logs = []
         for log in shift_logs:
             transformed_log = ShiftLogSchema(
