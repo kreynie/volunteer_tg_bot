@@ -7,7 +7,7 @@ project_path = Path(__file__).resolve().parent
 
 
 class DBSettings(BaseSettings):
-    url: str = f"sqlite+aiosqlite:///{project_path / 'db.sqlite3'}"
+    url: str = f"sqlite+aiosqlite:///{project_path / 'db.db'}"
     echo: bool = False
 
 
