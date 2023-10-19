@@ -12,6 +12,7 @@ class ShiftSchema(BaseSchema):
 class ToggleShiftSchema(BaseModel):
     user_id: int
     shift_action_id: int
+    shift_action_name: str | None = None
     time: datetime | None
 
 

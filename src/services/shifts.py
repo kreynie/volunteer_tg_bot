@@ -1,4 +1,4 @@
-from src.schemas.shift import ShiftLogSchema, ToggleShiftSchema
+from src.schemas.shift import ShiftLogSchema, ShiftSchema, ToggleShiftSchema
 from src.schemas.sort import QueryOrderBySchema
 from src.utils.unitofwork import IUnitOfWork
 
@@ -22,13 +22,24 @@ class ShiftsService:
             order_by: QueryOrderBySchema | list[QueryOrderBySchema] | None = None,
     ) -> list[ShiftLogSchema]:
         async with self.uow:
-            if order_by:
-                order_by = self.uow.shift_logs.build_order(order_by)
+            if not order_by:
+                order_by = QueryOrderBySchema(column_name="id", sort_desc=True)
+            order_by = self.uow.shift_logs.build_order(order_by)
 
-            history = await self.uow.shift_logs.find_all(
+            history: list[ShiftLogSchema] = await self.uow.shift_logs.find_all(
                 offset=offset,
                 limit=limit,
                 filter_by={"user_id": user_id} if user_id else None,
                 order_by=order_by,
             )
+            shifts: list[ShiftSchema] = await self.uow.shifts.find_all()
+            shifts_dict = {shift.id: shift.name for shift in shifts}
+
+            history = [
+                ShiftLogSchema(
+                    shift_action_name=shifts_dict[log.shift_action_id],
+                    **log.model_dump(exclude_none=True),
+                )
+                for log in history
+            ]
             return history

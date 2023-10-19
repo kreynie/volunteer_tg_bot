@@ -29,12 +29,10 @@ async def exit_shift(message: Message):
 async def get_user_shifts(message: Message, uow: UOWDep = UnitOfWork()):
     user_data = UserGetSchema(telegram_id=message.from_user.id)
     user = await UsersService(uow).get_user(user_data)
-    order_by = QueryOrderBySchema(column_name="time", sort_desc=True)
     shifts_limit = 6
     shift_logs = await ShiftsService(uow).get_shift_history(
         user_id=user.id,
         limit=shifts_limit,
-        order_by=order_by,
     )
     user_shifts_text = format_shifts_history(shift_logs, number=shifts_limit)
     await message.answer(user_shifts_text)
@@ -64,7 +62,7 @@ def format_shifts_history(
         return "Нет последних записей"
     shift_list = [
         f"ID: {shift.user_id}\n"
-        f"Состояние: {ShiftEnum(shift.shift_action_id).name}\n"
+        f"Состояние: {shift.shift_action_name}\n"
         f"Дата/время: {shift.time:%d.%m %H:%M}"
         for shift in shift_logs
     ]
