@@ -1,9 +1,10 @@
 import asyncio
+import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 
-from config import settings
+from config import project_path, settings
 from routers import all_routers
 from src.utils.middlewares import AuthorizedCommandsMiddleware
 from src.utils.unitofwork import UnitOfWork
@@ -23,4 +24,8 @@ async def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    log_handler = logging.FileHandler(project_path.parent / "debug.log")
+    log_handler.setFormatter(logging.Formatter("{asctime} {levelname} {message}", style="{"))
+    logging.getLogger().addHandler(log_handler)
     asyncio.run(main())
