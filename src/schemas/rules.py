@@ -1,8 +1,15 @@
+from pydantic import BaseModel
 from .base import BaseSchema
 
 
-class RuleSchema(BaseSchema):
+class AddRuleSchema(BaseModel):
+    rule_number: str
     text: str
 
 
-EditRuleSchema = RuleSchema
+class RuleSchema(BaseSchema, AddRuleSchema):
+    rule_number: str
+    text: str
+
+
+EditRuleSchema = AddRuleSchema
