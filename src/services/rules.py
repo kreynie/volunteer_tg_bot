@@ -1,3 +1,4 @@
+from sqlalchemy import func, Numeric
 from src.schemas.rules import AddRuleSchema, RuleSchema, EditRuleSchema
 from src.utils.unitofwork import IUnitOfWork
 
@@ -36,6 +37,6 @@ class RulesService:
 
     async def get_rules(self) -> list[RuleSchema]:
         async with self.uow:
-            order_by = [self.uow.rules.model.rule_number]
+            order_by = [func.cast(self.uow.rules.model.rule_number, Numeric(2, 1))]
             rules = await self.uow.rules.find_all(order_by=order_by)
             return rules
