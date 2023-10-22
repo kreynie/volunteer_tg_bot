@@ -12,3 +12,4 @@ class ManageRulesState(StatesGroup):
     editing = State()
     editing_rule_id = State()
     rule_text = State()
+    previous_state = State()
