@@ -21,11 +21,11 @@ async def help_handler(message: Message):
 @router.message(TextFilter(texts.list_rules))
 async def show_rules(message: Message, uow: UOWDep = UnitOfWork()):
     is_authorized = await UsersService(uow).check_rights(message.from_user.id, 50)
-    reply_markup_keyboard = edit_rules if is_authorized else None
+    edit_rules_keyboard = edit_rules if is_authorized else None
 
     reply_text = "Пусто"
     rules_list = await RulesService(uow).get_rules()
     if rules_list:
-        reply_text = "\n".join([f"{rule.id}) {rule.text}" for rule in rules_list])
+        reply_text = "\n".join([f"{rule.rule_number}) {rule.text}" for rule in rules_list])
 
-    await message.answer(text=reply_text, reply_markup=reply_markup_keyboard)
+    await message.answer(text=reply_text, reply_markup=edit_rules_keyboard)

@@ -14,8 +14,10 @@ class SQLAlchemyRepository:
         self.session = session
 
     @handle_database_error
-    async def add_one(self, data: dict) -> int:
-        stmt = insert(self.model).values(**data).returning(self.model.id)
+    async def add_one(self, data: dict, returning: MappedColumn | None = None):
+        stmt = insert(self.model).values(**data)
+        if returning:
+            stmt = stmt.returning(returning)
         try:
             res = await self.session.execute(stmt)
         except IntegrityError:
@@ -23,8 +25,17 @@ class SQLAlchemyRepository:
         return res.scalar_one()
 
     @handle_database_error
-    async def edit_one(self, filter_by_id: int, data: dict) -> int:
-        stmt = update(self.model).values(**data).filter_by(id=filter_by_id).returning(self.model.id)
+    async def edit_one(
+            self,
+            data: dict,
+            filter_by: dict,
+            returning: MappedColumn | None = None,
+    ):
+        stmt = update(self.model).values(**data)
+        if filter_by:
+            stmt = stmt.filter_by(**filter_by)
+        if returning:
+            stmt = stmt.returning(returning)
         res = await self.session.execute(stmt)
         return res.scalar_one()
 
@@ -61,8 +72,14 @@ class SQLAlchemyRepository:
         return res
 
     @handle_database_error
-    async def delete_one(self, **filter_by) -> int:
-        stmt = delete(self.model).filter_by(**filter_by).returning(self.model.id)
+    async def delete_one(
+            self,
+            returning: MappedColumn | None = None,
+            **filter_by,
+    ):
+        stmt = delete(self.model).filter_by(**filter_by)
+        if returning is not None:
+            stmt = stmt.returning(returning)
         try:
             res = await self.session.execute(stmt)
             return res.scalar_one()

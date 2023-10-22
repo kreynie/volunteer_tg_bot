@@ -1,4 +1,4 @@
-from src.schemas.rules import RuleSchema, EditRuleSchema
+from src.schemas.rules import AddRuleSchema, RuleSchema, EditRuleSchema
 from src.utils.unitofwork import IUnitOfWork
 
 
@@ -7,26 +7,35 @@ class RulesService:
         self.uow = uow
         self.__rules_list: list[RuleSchema] = list()
 
-    async def add_rule(self, rule_text) -> int:
+    async def add_rule(self, rule: AddRuleSchema) -> str:
+        rule = rule.model_dump()
         async with self.uow:
-            rule_id = await self.uow.rules.add_one({"text": rule_text})
+            rule_number = await self.uow.rules.add_one(rule, self.uow.rules.model.rule_number)
+            await self.uow.commit()
+            return rule_number
+
+    async def edit_rule(self, rule: EditRuleSchema) -> str:
+        rule_data = rule.model_dump()
+        async with self.uow:
+            rule_id = await self.uow.rules.edit_one(
+                data=rule_data,
+                filter_by={"rule_number": rule.rule_number},
+                returning=self.uow.rules.model.rule_number,
+            )
             await self.uow.commit()
             return rule_id
 
-    async def edit_rule(self, rule: EditRuleSchema) -> int:
-        rule_data = rule.model_dump(exclude={"id"})
+    async def delete_rule(self, rule_number: str) -> int:
         async with self.uow:
-            rule_id = await self.uow.rules.edit_one(filter_by_id=rule.id, data=rule_data)
+            returned_rile_number = await self.uow.rules.delete_one(
+                returning=self.uow.rules.model.rule_number,
+                rule_number=rule_number,
+            )
             await self.uow.commit()
-            return rule_id
-
-    async def delete_rule(self, rule_id: int) -> int:
-        async with self.uow:
-            returned_rile_id = await self.uow.rules.delete_one(id=rule_id)
-            await self.uow.commit()
-            return returned_rile_id
+            return returned_rile_number
 
     async def get_rules(self) -> list[RuleSchema]:
         async with self.uow:
-            rules = await self.uow.rules.find_all()
+            order_by = [self.uow.rules.model.rule_number]
+            rules = await self.uow.rules.find_all(order_by=order_by)
             return rules
