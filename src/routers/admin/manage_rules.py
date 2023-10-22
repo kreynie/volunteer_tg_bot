@@ -35,10 +35,11 @@ async def callback_edit_rules(query: CallbackQuery, state: FSMContext):
     await state.set_state(ManageRulesState.editing)
     message_text = query.message.text
     await query.message.edit_text(text=message_text)
-    await query.message.answer(text='Дай номер правила. Для отмены введи "отмена"')
+    await query.message.answer(text="Дай номер правила. Для отмены кнопка снизу", reply_markup=reset_state)
 
 
 @router.message(ManageRulesState.addition, TextFilter(texts.done_text))
+@router.message(ManageRulesState.editing, TextFilter(texts.done_text))
 @router.message(ManageRulesState.removal, TextFilter(texts.done_text))
 async def clear_rule_addition_state(message: Message, state: FSMContext):
     await reset_user_state(message, state)
