@@ -31,9 +31,7 @@ class SQLAlchemyRepository:
             filter_by: dict,
             returning: MappedColumn | None = None,
     ):
-        stmt = update(self.model).values(**data)
-        if filter_by:
-            stmt = stmt.filter_by(**filter_by)
+        stmt = update(self.model).values(**data).filter_by(**filter_by)
         if returning:
             stmt = stmt.returning(returning)
         res = await self.session.execute(stmt)

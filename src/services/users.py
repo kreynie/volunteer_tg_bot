@@ -10,14 +10,16 @@ class UsersService:
     async def add_user(self, user: UserAddSchema) -> int:
         user_dict = user.model_dump()
         async with self.uow:
-            returned_user_id = await self.uow.users.add_one(user_dict)
+            should_return = self.uow.users.model.id
+            returned_user_id = await self.uow.users.add_one(user_dict, should_return)
             await self.uow.commit()
             return returned_user_id
 
     async def delete_user(self, user: UserDeleteSchema) -> int:
         user_dict = user.model_dump(exclude_none=True)
         async with self.uow:
-            returned_user_id = await self.uow.users.delete_one(**user_dict)
+            should_return = self.uow.users.model.id
+            returned_user_id = await self.uow.users.delete_one(returning=should_return, **user_dict)
             await self.uow.commit()
             return returned_user_id
 

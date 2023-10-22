@@ -34,7 +34,7 @@ async def add_user(message: Message, state: FSMContext):
 
 @router.message(ManageUsersState.addition)
 async def user_addition_state(message: Message, uow: UOWDep = UnitOfWork()):
-    if not message.forward_from or message.forward_from.is_bot:
+    if message.forward_from is None or message.forward_from.is_bot is True:
         return await message.answer("Не найдено пересланное сообщение пользователя\n"
                                     "Возможно он запретил добавлять ссылку на свою учетную "
                                     "запись в переадресованных сообщениях в настройках конфиденциальности")
