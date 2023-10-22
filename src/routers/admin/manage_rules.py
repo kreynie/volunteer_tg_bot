@@ -87,6 +87,7 @@ async def finish_edition_rules(message: Message, state: FSMContext, uow: UOWDep 
         if rule_action == ManageRulesState.addition \
         else await service.edit_rule(rule)
     await message.answer(action_message.format(rule_number=returned_rule_number))
+    await get_admin_keyboard(message)
 
 
 async def cancel_editing_rule(message: Message, state: FSMContext):
@@ -100,5 +101,6 @@ async def cancel_editing_rule(message: Message, state: FSMContext):
         return message.answer_sticker(sticker=MariAndHide.bonk)
     elif message.text.lower() == "отмена":
         await state.clear()
-        return await message.answer("Редактирование отменено")
+        await message.answer("Редактирование отменено")
+        return await get_admin_keyboard(message)
     return None

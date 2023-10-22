@@ -18,17 +18,18 @@ from .admin_keyboard import get_admin_keyboard
 router = Router(name=__name__)
 
 
+@router.message(ManageUsersState.addition, TextFilter(texts.done_text))
+@router.message(ManageUsersState.removal, TextFilter(texts.done_text))
+async def reset_removal_user_state(message: Message, state: FSMContext):
+    await reset_user_state(message, state)
+    await get_admin_keyboard(message)
+
+
 @router.message(TextFilter(texts.add_users_text))
 async def add_user(message: Message, state: FSMContext):
     await state.set_state(ManageUsersState.addition)
     await message.answer("Пересылай мне сообщение нужных пользователей\n"
                          "Для остановки нажми на кнопку снизу", reply_markup=reset_state)
-
-
-@router.message(ManageUsersState.addition, TextFilter(texts.done_text))
-async def reset_addition_user_state(message: Message, state: FSMContext):
-    await reset_user_state(message, state)
-    await get_admin_keyboard(message)
 
 
 @router.message(ManageUsersState.addition)
@@ -53,12 +54,6 @@ async def user_addition_state(message: Message, uow: UOWDep = UnitOfWork()):
 async def remove_user(message: Message, state: FSMContext):
     await state.set_state(ManageUsersState.removal)
     await message.answer("Перечисляй TG айди отдельными сообщениями", reply_markup=reset_state)
-
-
-@router.message(ManageUsersState.removal, TextFilter(texts.done_text))
-async def reset_removal_user_state(message: Message, state: FSMContext):
-    await reset_user_state(message, state)
-    await get_admin_keyboard(message)
 
 
 @router.message(ManageUsersState.removal)
