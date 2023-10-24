@@ -10,6 +10,6 @@ class ManageRulesState(StatesGroup):
     addition = State()
     removal = State()
     editing = State()
-    editing_rule_id = State()
+    managing_rule_number = State()
     rule_text = State()
     previous_state = State()

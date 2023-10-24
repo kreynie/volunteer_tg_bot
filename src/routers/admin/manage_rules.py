@@ -58,23 +58,22 @@ async def manage_rules(message: Message, state: FSMContext, uow: UOWDep = UnitOf
         await RulesService(uow).delete_rule(message.text)
         await message.answer("Удалено")
         return await state.clear()
-    await state.update_data(editing_rule_id=message.text, previous_state=current_state)
+    await state.update_data(managing_rule_number=message.text, previous_state=current_state)
     await state.set_state(ManageRulesState.rule_text)
     await message.answer("Теперь отправь текст.\n"
-                         'Если введен неверный номер, напиши "назад"\n'
-                         'Для отмены введи "отмена"')
+                         'Если введен неверный номер, напиши "назад"')
 
 
 @router.message(ManageRulesState.rule_text)
-async def finish_edition_rules(message: Message, state: FSMContext, uow: UOWDep = UnitOfWork()):
+async def finish_editing_rules(message: Message, state: FSMContext, uow: UOWDep = UnitOfWork()):
     cancel = await cancel_editing_rule(message, state)
-    if cancel is not None:
+    if cancel is True:
         return
 
     rule_data = await state.get_data()
     rule_action = rule_data.get("previous_state", None)
     await state.clear()
-    rule_number = rule_data["editing_rule_id"]
+    rule_number = rule_data["managing_rule_number"]
     rule_text = message.text
     if rule_action == ManageRulesState.addition:
         rule = AddRuleSchema(rule_number=rule_number, text=rule_text)
@@ -91,17 +90,13 @@ async def finish_edition_rules(message: Message, state: FSMContext, uow: UOWDep 
     await get_admin_keyboard(message)
 
 
-async def cancel_editing_rule(message: Message, state: FSMContext):
+async def cancel_editing_rule(message: Message, state: FSMContext) -> bool:
     if not message.text:
-        return await message.answer("Мне нужен текст правила")
+        return bool(await message.answer("Мне нужен текст правила"))
     rule_data = await state.get_data()
-    rule_action = rule_data.get("rule_action", None)
+    rule_action = rule_data.get("previous_state", None)
     if message.text.lower() == "назад":
         await state.set_state(rule_action)
-        await message.answer("Неряха. Дай нужный номер правила")
-        return message.answer_sticker(sticker=MariAndHide.bonk)
-    elif message.text.lower() == "отмена":
-        await state.clear()
-        await message.answer("Редактирование отменено")
-        return await get_admin_keyboard(message)
-    return None
+        await message.answer_sticker(sticker=MariAndHide.bonk)
+        return bool(await message.answer("Неряха. Дай нужный номер правила"))
+    return False
