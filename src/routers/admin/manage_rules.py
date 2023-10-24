@@ -41,6 +41,7 @@ async def callback_edit_rules(query: CallbackQuery, state: FSMContext):
 @router.message(ManageRulesState.addition, TextFilter(texts.done_text))
 @router.message(ManageRulesState.editing, TextFilter(texts.done_text))
 @router.message(ManageRulesState.removal, TextFilter(texts.done_text))
+@router.message(ManageRulesState.rule_text, TextFilter(texts.done_text))
 async def clear_rule_addition_state(message: Message, state: FSMContext):
     await reset_user_state(message, state)
     await get_admin_keyboard(message)
