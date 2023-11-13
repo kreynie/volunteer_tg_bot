@@ -4,6 +4,7 @@ from aiogram.types import Message
 
 from src.filters import TextFilter
 from src.keyboards.inline import edit_rules
+from src.routers.utils import format_rules_list_to_str
 from src.services.rules import RulesService
 from src.services.users import UsersService
 from src.utils import texts
@@ -26,6 +27,6 @@ async def show_rules(message: Message, uow: UOWDep = UnitOfWork()):
     reply_text = "Пусто"
     rules_list = await RulesService(uow).get_rules()
     if rules_list:
-        reply_text = "\n".join([f"{rule.rule_number}) {rule.text}" for rule in rules_list])
+        reply_text = format_rules_list_to_str(rules_list)
 
     await message.answer(text=reply_text, reply_markup=edit_rules_keyboard)
