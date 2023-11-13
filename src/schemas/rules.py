@@ -8,8 +8,7 @@ class AddRuleSchema(BaseModel):
 
 
 class RuleSchema(BaseSchema, AddRuleSchema):
-    rule_number: str
-    text: str
+    pass
 
 
 EditRuleSchema = AddRuleSchema

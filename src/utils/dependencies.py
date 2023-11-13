@@ -1,5 +1,5 @@
-from typing import Annotated
+from typing import TypeVar
 
-from .unitofwork import IUnitOfWork, UnitOfWork
+from .unitofwork import IUnitOfWork
 
-UOWDep = Annotated[IUnitOfWork, UnitOfWork]
+UOWDep = TypeVar("UOWDep", bound=IUnitOfWork)

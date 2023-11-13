@@ -33,7 +33,9 @@ class IUnitOfWork(ABC):
         ...
 
 
-class UnitOfWork:
+class UnitOfWork(IUnitOfWork):
+    """UnitOfWork for managing repositories"""
+
     def __init__(self):
         self.session_factory = session_maker
 
