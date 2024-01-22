@@ -22,7 +22,7 @@ edit_rules = InlineKeyboardMarkup(
 )
 
 
-def paginator(page: int, total_pages: int):
+def shifts_list_paginator(page: int, total_pages: int):
     builder = InlineKeyboardBuilder()
     buttons = []
     if page > 0:

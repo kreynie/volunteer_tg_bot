@@ -2,9 +2,8 @@ from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message
 
 from src.filters import TextFilter
-from src.keyboards.inline import ListShiftsCallback, paginator
+from src.keyboards.inline import ListShiftsCallback, shifts_list_paginator
 from src.routers.event import format_shifts_history
-from src.schemas.sort import QueryOrderBySchema
 from src.services.shifts import ShiftsService
 from src.utils import texts
 from src.utils.dependencies import UOWDep
@@ -55,7 +54,7 @@ async def display_shift_history(
         overall_amount=shift_logs_len,
     )
 
-    pagination_buttons = paginator(page=page_num, total_pages=total_pages)
+    pagination_buttons = shifts_list_paginator(page=page_num, total_pages=total_pages)
     if edit_message:
         return await message.edit_text(user_shifts_text, reply_markup=pagination_buttons)
     await message.answer(user_shifts_text, reply_markup=pagination_buttons)
