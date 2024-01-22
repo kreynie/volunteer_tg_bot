@@ -2,7 +2,7 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
 from src.utils import texts
 
-reset_state = ReplyKeyboardMarkup(
+reset_state_kb = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text=texts.done_text)]
     ],

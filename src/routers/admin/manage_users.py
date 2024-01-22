@@ -6,6 +6,7 @@ from aiogram.utils.markdown import hbold, hcode
 from src.database.exceptions import EntityAlreadyExists, EntityNotFound
 from src.filters import TextFilter
 from src.keyboards.reply.reset import reset_state
+from src.keyboards.reply.reset import reset_state_kb
 from src.routers.utils import reset_user_state
 from src.schemas.user import UserAddSchema, UserDeleteSchema
 from src.services.users import UsersService
@@ -29,7 +30,7 @@ async def reset_removal_user_state(message: Message, state: FSMContext):
 async def add_user(message: Message, state: FSMContext):
     await state.set_state(ManageUsersState.addition)
     await message.answer("Пересылай мне сообщение нужных пользователей\n"
-                         "Для остановки нажми на кнопку снизу", reply_markup=reset_state)
+                         "Для остановки нажми на кнопку снизу", reply_markup=reset_state_kb)
 
 
 @router.message(ManageUsersState.addition)
@@ -53,7 +54,7 @@ async def user_addition_state(message: Message, uow: UOWDep = UnitOfWork()):
 @router.message(TextFilter(texts.remove_users_text))
 async def remove_user(message: Message, state: FSMContext):
     await state.set_state(ManageUsersState.removal)
-    await message.answer("Перечисляй TG айди отдельными сообщениями", reply_markup=reset_state)
+    await message.answer("Перечисляй TG айди отдельными сообщениями", reply_markup=reset_state_kb)
 
 
 @router.message(ManageUsersState.removal)
