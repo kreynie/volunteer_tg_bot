@@ -2,6 +2,7 @@ from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
+from src.database.exceptions import EntityAlreadyExists, EntityNotFound
 from src.filters import TextFilter
 from src.filters.rule_number import is_valid_rule_number
 from src.keyboards.inline.rules import EditRulesCallback
@@ -56,7 +57,10 @@ async def manage_rules(message: Message, state: FSMContext, uow: UOWDep = UnitOf
 
     current_state = await state.get_state()
     if current_state == ManageRulesState.removal:
-        await RulesService(uow).delete_rule(message.text)
+        try:
+            await RulesService(uow).delete_rule(message.text)
+        except EntityNotFound:
+            return await message.answer("Такой номер правила не найден")
         await message.answer("Удалено")
         return await state.clear()
     await state.update_data(managing_rule_number=message.text, previous_state=current_state)
@@ -84,10 +88,16 @@ async def finish_editing_rules(message: Message, state: FSMContext, uow: UOWDep 
         action_message = "Отредактировано {rule_number}-ое правило"
 
     service = RulesService(uow)
-    returned_rule_number = await service.add_rule(rule) \
-        if rule_action == ManageRulesState.addition \
-        else await service.edit_rule(rule)
-    await message.answer(action_message.format(rule_number=returned_rule_number))
+    try:
+        returned_rule_number = await service.add_rule(rule) \
+            if rule_action == ManageRulesState.addition \
+            else await service.edit_rule(rule)
+    except EntityAlreadyExists:
+        await message.answer("Поле с таким номером уже есть")
+    except EntityNotFound:
+        await message.answer("Поле с таким номером не найдено")
+    else:
+        await message.answer(action_message.format(rule_number=returned_rule_number))
     await get_admin_keyboard(message)
 
 
