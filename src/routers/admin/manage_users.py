@@ -5,7 +5,7 @@ from aiogram.utils.markdown import hbold, hcode
 
 from src.database.exceptions import EntityAlreadyExists, EntityNotFound
 from src.filters import TextFilter
-from src.keyboards.reply import reset_state
+from src.keyboards.reply.reset import reset_state
 from src.routers.utils import reset_user_state
 from src.schemas.user import UserAddSchema, UserDeleteSchema
 from src.services.users import UsersService

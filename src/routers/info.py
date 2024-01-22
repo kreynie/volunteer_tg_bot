@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 
 from src.filters import TextFilter
-from src.keyboards.inline import edit_rules
+from src.keyboards.inline.rules import edit_rules
 from src.routers.utils import format_rules_list_to_str
 from src.services.rules import RulesService
 from src.services.users import UsersService

@@ -1,6 +1,6 @@
 from aiogram.types import Message
 
-from src.keyboards.reply import admin_keyboard
+from src.keyboards.reply.admin import admin_keyboard
 
 
 async def get_admin_keyboard(message: Message):

@@ -4,8 +4,8 @@ from aiogram.types import CallbackQuery, Message
 
 from src.filters import TextFilter
 from src.filters.rule_number import is_valid_rule_number
-from src.keyboards.inline import EditRulesCallback
-from src.keyboards.reply import reset_state
+from src.keyboards.inline.rules import EditRulesCallback
+from src.keyboards.reply.reset import reset_state
 from src.routers.admin.admin_keyboard import get_admin_keyboard
 from src.routers.utils import reset_user_state
 from src.schemas.rules import AddRuleSchema, EditRuleSchema
