@@ -3,6 +3,7 @@ help_text = "Пока нет справки"
 
 # Users section
 add_users_text = "➕ Пользователи"
+edit_users_text = "📝 Пользователя"
 remove_users_text = "❌ Пользователь"
 list_users_text = "📃 Список"
 list_shifts_text = "📅 Логи"

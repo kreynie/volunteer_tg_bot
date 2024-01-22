@@ -14,6 +14,7 @@ class User(Base):
     __tablename__ = "users"
 
     telegram_id: Mapped[int] = mapped_column(BigInteger, nullable=False, unique=True)
+    moderator_id: Mapped[int] = mapped_column(unique=True)
     username: Mapped[str] = mapped_column(nullable=True)
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), default=0)
 
@@ -23,6 +24,7 @@ class User(Base):
         return UserSchema(
             id=self.id,
             telegram_id=self.telegram_id,
+            moderator_id=self.moderator_id,
             username=self.username,
             role_id=self.role_id,
         )

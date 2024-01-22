@@ -3,6 +3,10 @@ from aiogram.fsm.state import State, StatesGroup
 
 class ManageUsersState(StatesGroup):
     addition = State()
+    addition_moderator_id = State()
+    editing = State()
+    editing_choose_field = State()
+    editing_chosen_field = State()
     removal = State()
 
 
