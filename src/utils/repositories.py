@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import MappedColumn
 
-from src.database.exceptions import EntityNotFound, handle_database_error
+from src.database.exceptions import EntityAlreadyExists, EntityNotFound, handle_database_error
 from src.schemas.sort import QueryOrderBySchema
 
 
@@ -21,7 +21,7 @@ class SQLAlchemyRepository:
         try:
             res = await self.session.execute(stmt)
         except IntegrityError:
-            raise
+            raise EntityAlreadyExists
         return res.scalar_one()
 
     @handle_database_error
@@ -34,8 +34,11 @@ class SQLAlchemyRepository:
         stmt = update(self.model).values(**data).filter_by(**filter_by)
         if returning:
             stmt = stmt.returning(returning)
-        res = await self.session.execute(stmt)
-        return res.scalar_one()
+        try:
+            res = await self.session.execute(stmt)
+            return res.scalar_one()
+        except NoResultFound:
+            raise EntityNotFound
 
     @handle_database_error
     async def find_all(
