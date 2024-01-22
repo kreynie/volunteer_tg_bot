@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, Message
 from src.filters import TextFilter
 from src.filters.rule_number import is_valid_rule_number
 from src.keyboards.inline.rules import EditRulesCallback
-from src.keyboards.reply.reset import reset_state
+from src.keyboards.reply.reset import reset_state_kb
 from src.routers.admin.admin_keyboard import get_admin_keyboard
 from src.routers.utils import reset_user_state
 from src.schemas.rules import AddRuleSchema, EditRuleSchema
@@ -27,7 +27,7 @@ async def set_removal_rule_state(message: Message, state: FSMContext):
         await state.set_state(ManageRulesState.addition)
     else:
         await state.set_state(ManageRulesState.removal)
-    await message.answer("Пиши номер правила. Для отмены нажми на кнопку снизу", reply_markup=reset_state)
+    await message.answer("Пиши номер правила. Для отмены нажми на кнопку снизу", reply_markup=reset_state_kb)
 
 
 @router.callback_query(EditRulesCallback.filter(F.action == "edit"))
@@ -35,7 +35,7 @@ async def callback_edit_rules(query: CallbackQuery, state: FSMContext):
     await state.set_state(ManageRulesState.editing)
     message_text = query.message.text
     await query.message.edit_text(text=message_text)
-    await query.message.answer(text="Дай номер правила. Для отмены кнопка снизу", reply_markup=reset_state)
+    await query.message.answer(text="Дай номер правила. Для отмены кнопка снизу", reply_markup=reset_state_kb)
 
 
 @router.message(ManageRulesState.addition, TextFilter(texts.done_text))
