@@ -20,6 +20,7 @@ router = Router(name=__name__)
 
 
 @router.message(ManageUsersState.addition, TextFilter(texts.done_text))
+@router.message(ManageUsersState.addition_moderator_id, TextFilter(texts.done_text))
 @router.message(ManageUsersState.removal, TextFilter(texts.done_text))
 @router.message(ManageUsersState.editing, TextFilter(texts.done_text))
 @router.message(ManageUsersState.editing_choose_field, TextFilter(texts.done_text))
@@ -49,7 +50,7 @@ async def user_addition_state(message: Message, state: FSMContext):
         )
 
     await state.set_data(data={
-        "forward_from": message.forward_from.id,
+        "telegram_id": message.forward_from.id,
         "username": message.forward_from.username,
     })
     await state.set_state(ManageUsersState.addition_moderator_id)
