@@ -1,16 +1,15 @@
 from abc import ABC, abstractmethod
 
-from src.repositories import RolesRepository, ShiftLogsRepository, ShiftsRepository, UsersRepository
 from src.database.database import session_maker
-from src.repositories.rules import RulesRepository
+from src import repositories
 
 
 class IUnitOfWork(ABC):
-    users: UsersRepository
-    roles: RolesRepository
-    rules: RulesRepository
-    shifts: ShiftsRepository
-    shift_logs: ShiftLogsRepository
+    users: repositories.UsersRepository
+    roles: repositories.RolesRepository
+    rules: repositories.RulesRepository
+    shifts: repositories.ShiftsRepository
+    shift_logs: repositories.ShiftLogsRepository
 
     @abstractmethod
     def __init__(self):
@@ -42,11 +41,11 @@ class UnitOfWork(IUnitOfWork):
     async def __aenter__(self):
         self.session = self.session_factory()
 
-        self.users = UsersRepository(self.session)
-        self.roles = RolesRepository(self.session)
-        self.rules = RulesRepository(self.session)
-        self.shifts = ShiftsRepository(self.session)
-        self.shift_logs = ShiftLogsRepository(self.session)
+        self.users = repositories.UsersRepository(self.session)
+        self.roles = repositories.RolesRepository(self.session)
+        self.rules = repositories.RulesRepository(self.session)
+        self.shifts = repositories.ShiftsRepository(self.session)
+        self.shift_logs = repositories.ShiftLogsRepository(self.session)
 
     async def __aexit__(self, *args):
         await self.rollback()
