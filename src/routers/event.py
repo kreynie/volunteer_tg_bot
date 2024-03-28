@@ -3,7 +3,6 @@ from aiogram.types import Message
 
 from src.filters import TextFilter
 from src.schemas.shift import ShiftLogSchema, ToggleShiftSchema
-from src.schemas.sort import QueryOrderBySchema
 from src.schemas.user import UserGetSchema
 from src.services.shifts import ShiftsService
 from src.services.users import UsersService
@@ -11,6 +10,7 @@ from src.utils import texts
 from src.utils.dependencies import UOWDep
 from src.utils.shift_enum import ShiftEnum
 from src.utils.unitofwork import UnitOfWork
+from src.utils.pluralization import plural_form
 
 router = Router(name=__name__)
 
@@ -34,7 +34,12 @@ async def get_user_shifts(message: Message, uow: UOWDep = UnitOfWork()):
         user_id=user.id,
         limit=shifts_limit,
     )
-    user_shifts_text = format_shifts_history(shift_logs, number=shifts_limit)
+
+    displayed_shifts_number = min(shifts_limit, len(shift_logs))
+    user_shifts_text = format_shifts_history(
+        shift_logs=shift_logs,
+        number=displayed_shifts_number,
+    )
     await message.answer(user_shifts_text)
 
 
@@ -67,10 +72,11 @@ def format_shifts_history(
         for shift in shift_logs
     ]
     shift_list = "\n\n".join(shift_list)
+    records_word = plural_form(number, "запись", "записи", "записей")
     if not offset and not overall_amount:
-        return f"Последние {number} записей:\n{shift_list}"
+        return f"Последние {number} {records_word}:\n{shift_list}"
     elif offset and not overall_amount:
-        return f"Записи {offset}-{number}:\n{shift_list}"
+        return f"Последние {offset}-{offset + number - 1} {records_word}:\n{shift_list}"
     elif not offset and overall_amount:
-        return f"Последние {number} ({overall_amount}) записей:\n{shift_list}"
-    return f"Записи {offset}-{number} ({overall_amount}):\n{shift_list}"
+        return f"Последние {number} ({overall_amount}) {records_word}:\n{shift_list}"
+    return f"Записи {offset}-{offset + number - 1} ({overall_amount}):\n{shift_list}"

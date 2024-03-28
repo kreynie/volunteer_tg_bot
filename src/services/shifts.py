@@ -10,7 +10,10 @@ class ShiftsService:
     async def toggle_shift(self, shift: ToggleShiftSchema) -> int:
         shift = shift.model_dump(exclude_none=True)
         async with self.uow:
-            shift_id = await self.uow.shift_logs.add_one(shift)
+            shift_id = await self.uow.shift_logs.add_one(
+                data=shift,
+                returning=self.uow.shift_logs.model.id
+            )
             await self.uow.commit()
             return shift_id
 
