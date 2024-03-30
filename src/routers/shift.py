@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from aiogram import Router
 from aiogram.types import Message
 
@@ -46,10 +48,12 @@ async def get_user_shifts(message: Message, uow: UOWDep = UnitOfWork()):
 async def toggle_shift(message: Message, shift_enum: ShiftEnum, uow: UOWDep = UnitOfWork()):
     user = UserGetSchema(telegram_id=message.from_user.id)
     user = await UsersService(uow).get_user(user)
+
+    # Due to TG sometimes gives wrong local time, message.date replaced with datetime.now()
     shift = ToggleShiftSchema(
         user_id=user.id,
         shift_action_id=shift_enum.value,
-        time=message.date,
+        time=datetime.now(),
     )
     shift_id = await ShiftsService(uow).toggle_shift(shift)
     if shift_id:
