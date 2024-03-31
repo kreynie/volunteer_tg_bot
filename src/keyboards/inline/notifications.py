@@ -12,8 +12,13 @@ notifications = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(
-                text=texts.shifts_notifications,
-                callback_data=NotificationsCallback(action="get_shifts_notifications").pack()),
+                text=texts.enable_shifts_notifications,
+                callback_data=NotificationsCallback(action="enable_shifts_notifications").pack()),
+        ],
+        [
+            InlineKeyboardButton(
+                text=texts.disable_shifts_notifications,
+                callback_data=NotificationsCallback(action="disable_shifts_notifications").pack()),
         ],
     ]
 )

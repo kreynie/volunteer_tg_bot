@@ -1,20 +1,22 @@
-from .base import BaseSchema
+from pydantic import BaseModel
 
 
-class NotificationSchema(BaseSchema):
-    id: int
-    user_id: int
+class GetUsersWithNotificationSchema(BaseModel):
     notification_id: int
     enabled: bool
 
 
-class ToggleNotificationSchema(BaseSchema):
+class CreateNotificationSchema(GetUsersWithNotificationSchema):
+    user_id: int
+
+
+class GetUserNotificationSchema(CreateNotificationSchema):
+    enabled: bool | None = None
+
+
+class NotificationSchema(CreateNotificationSchema):
     id: int
 
 
-class EnableNotificationSchema(ToggleNotificationSchema):
-    enabled: bool = True
-
-
-class DisableNotificationSchema(ToggleNotificationSchema):
-    enabled: bool = False
+class ToggleNotificationSchema(CreateNotificationSchema):
+    pass
