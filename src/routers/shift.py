@@ -1,13 +1,19 @@
+from datetime import datetime
+
 from aiogram import Router
 from aiogram.types import Message
+from sqlalchemy.exc import DatabaseError
 
 from src.filters import TextFilter
+from src.schemas.notifications import GetUsersWithNotificationSchema
 from src.schemas.shift import ShiftLogSchema, ToggleShiftSchema
 from src.schemas.user import UserGetSchema
+from src.services.notifications import NotificationsService
 from src.services.shifts import ShiftsService
 from src.services.users import UsersService
 from src.utils import texts
 from src.utils.dependencies import UOWDep
+from src.utils.notifications_enum import NotificationsEnum
 from src.utils.shift_enum import ShiftEnum
 from src.utils.unitofwork import UnitOfWork
 from src.utils.pluralization import plural_form
@@ -46,15 +52,35 @@ async def get_user_shifts(message: Message, uow: UOWDep = UnitOfWork()):
 async def toggle_shift(message: Message, shift_enum: ShiftEnum, uow: UOWDep = UnitOfWork()):
     user = UserGetSchema(telegram_id=message.from_user.id)
     user = await UsersService(uow).get_user(user)
+
+    # Due to TG sometimes gives wrong local time, message.date replaced with datetime.now()
     shift = ToggleShiftSchema(
         user_id=user.id,
         shift_action_id=shift_enum.value,
-        time=message.date,
+        time=datetime.now(),
     )
-    shift_id = await ShiftsService(uow).toggle_shift(shift)
-    if shift_id:
-        return await message.answer("Записано")
-    await message.answer("Ошибка в записи")
+    try:
+        await ShiftsService(uow).toggle_shift(shift)
+    except DatabaseError:
+        return await message.answer("Произошла ошибка во время добавления записи в БД")
+    except Exception as e:
+        return await message.answer("Произошла непредвиденная ошибка при попытке записи\n"
+                                    f"<code>{e}</code>")
+
+    await message.answer("Записано")
+
+    action_message = "зашел на смену" if shift_enum == ShiftEnum.enter else "вышел со смены"
+    get_users_to_notify = await NotificationsService(uow).get_users_with_notification(
+        GetUsersWithNotificationSchema(notification_id=NotificationsEnum.shifts.value, enabled=True)
+    )
+    for user_to_notify in get_users_to_notify:
+        if user_to_notify.user_id == user.telegram_id:
+            continue
+
+        await message.bot.send_message(
+            chat_id=user_to_notify.user_id,
+            text=f"Модератор {user.moderator_id} {action_message}"
+        )
 
 
 def format_shifts_history(

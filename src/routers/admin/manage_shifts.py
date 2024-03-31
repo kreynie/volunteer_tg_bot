@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery, Message
 
 from src.filters import TextFilter
 from src.keyboards.inline.shifts import ListShiftsCallback, shifts_list_paginator
-from src.routers.event import format_shifts_history
+from src.routers.shift import format_shifts_history
 from src.services.shifts import ShiftsService
 from src.utils import texts
 from src.utils.dependencies import UOWDep

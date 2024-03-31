@@ -10,6 +10,7 @@ class IUnitOfWork(ABC):
     rules: repositories.RulesRepository
     shifts: repositories.ShiftsRepository
     shift_logs: repositories.ShiftLogsRepository
+    notifications: repositories.NotificationsRepository
 
     @abstractmethod
     def __init__(self):
@@ -46,6 +47,7 @@ class UnitOfWork(IUnitOfWork):
         self.rules = repositories.RulesRepository(self.session)
         self.shifts = repositories.ShiftsRepository(self.session)
         self.shift_logs = repositories.ShiftLogsRepository(self.session)
+        self.notifications = repositories.NotificationsRepository(self.session)
 
     async def __aexit__(self, *args):
         await self.rollback()

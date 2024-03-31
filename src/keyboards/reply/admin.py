@@ -16,6 +16,7 @@ admin_keyboard = ReplyKeyboardMarkup(
         ],
         [
             KeyboardButton(text=texts.list_shifts_text),
+            KeyboardButton(text=texts.notifications),
         ],
     ],
     resize_keyboard=True,

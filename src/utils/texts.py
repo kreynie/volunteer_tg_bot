@@ -25,3 +25,9 @@ previous_page = "⬅"
 previous_page_action = "previous"
 next_page = "➡"
 next_page_action = "next"
+
+# Admin notifications
+notifications = "🔔 Уведомления"
+shifts_notifications = notifications + " о посещалке"
+enable_shifts_notifications = "🚨 Включить"
+disable_shifts_notifications = "💤 Выключить"
