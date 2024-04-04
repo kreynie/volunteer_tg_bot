@@ -8,6 +8,7 @@ from .base import Base
 
 if TYPE_CHECKING:
     from .roles import Role
+    from .shift_logs import ShiftLog
 
 
 class User(Base):
@@ -19,6 +20,7 @@ class User(Base):
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), default=0)
 
     role: Mapped["Role"] = relationship()
+    shift_logs: Mapped["ShiftLog"] = relationship()
 
     def to_read_model(self) -> UserSchema:
         return UserSchema(

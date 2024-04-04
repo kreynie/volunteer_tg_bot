@@ -92,7 +92,7 @@ def format_shifts_history(
     if not shift_logs:
         return "Нет последних записей"
     shift_list = [
-        f"ID: {shift.user_id}\n"
+        f"MT ID: {shift.moderator_id}\n"
         f"Состояние: {shift.shift_action_name}\n"
         f"Дата/время: {shift.time:%d.%m %H:%M}"
         for shift in shift_logs

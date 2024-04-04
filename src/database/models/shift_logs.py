@@ -22,7 +22,7 @@ class ShiftLog(Base):
         nullable=False,
     )
 
-    user: Mapped["User"] = relationship()
+    user: Mapped["User"] = relationship(back_populates="shift_logs", lazy="immediate")
 
     def to_read_model(self) -> ShiftLogSchema:
         return ShiftLogSchema(
@@ -30,4 +30,5 @@ class ShiftLog(Base):
             user_id=self.user_id,
             shift_action_id=self.shift_action_id,
             time=self.time,
+            moderator_id=self.user.moderator_id,
         )

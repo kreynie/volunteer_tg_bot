@@ -17,4 +17,4 @@ class ToggleShiftSchema(BaseModel):
 
 
 class ShiftLogSchema(BaseSchema, ToggleShiftSchema):
-    pass
+    moderator_id: int
