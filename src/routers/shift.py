@@ -79,7 +79,7 @@ async def toggle_shift(message: Message, shift_enum: ShiftEnum, uow: UOWDep = Un
 
         await message.bot.send_message(
             chat_id=user_to_notify.user_id,
-            text=f"Модератор {user.moderator_id} {action_message}"
+            text=f'<a href="tg://user?id={user.telegram_id}">Модератор</a> {user.moderator_id} {action_message}'
         )
 
 
