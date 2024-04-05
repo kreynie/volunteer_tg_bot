@@ -12,7 +12,7 @@ class EditUsersCallback(CallbackData, prefix="users"):
 edit_users_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text=texts.edit_users_text, callback_data=EditUsersCallback(action="edit").pack()),
+            InlineKeyboardButton(text=texts.edit_users, callback_data=EditUsersCallback(action="edit").pack()),
         ],
     ]
 )

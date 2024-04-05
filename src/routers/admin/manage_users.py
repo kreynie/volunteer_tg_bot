@@ -30,7 +30,7 @@ async def reset_state(message: Message, state: FSMContext):
     await get_admin_keyboard(message)
 
 
-@router.message(TextFilter(texts.add_users_text))
+@router.message(TextFilter(texts.add_users))
 async def add_user(message: Message, state: FSMContext):
     await state.set_state(ManageUsersState.addition)
     await message.answer(
@@ -151,7 +151,7 @@ async def editing_user_field(message: Message, state: FSMContext, uow: UOWDep = 
     await get_admin_keyboard(message)
 
 
-@router.message(TextFilter(texts.remove_users_text))
+@router.message(TextFilter(texts.remove_users))
 async def remove_user(message: Message, state: FSMContext):
     await state.set_state(ManageUsersState.removal)
     await message.answer("Перечисляй TG айди отдельными сообщениями", reply_markup=reset_state_kb)
@@ -171,7 +171,7 @@ async def user_removal_state(message: Message, uow: UOWDep = UnitOfWork()):
     await message.answer(f"Удалён {hbold(message.text)}")
 
 
-@router.message(TextFilter(texts.list_users_text))
+@router.message(TextFilter(texts.list_users))
 async def list_users(message: Message, uow: UOWDep = UnitOfWork()):
     users = await UsersService(uow).get_users()
     if not users:

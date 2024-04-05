@@ -12,7 +12,7 @@ from src.utils.unitofwork import UnitOfWork
 router = Router(name=__name__)
 
 
-@router.message(TextFilter(texts.list_shifts_text))
+@router.message(TextFilter(texts.list_shifts))
 async def get_shift_history(message: Message, uow: UOWDep = UnitOfWork()):
     await display_shift_history(message, uow, page_num=0, edit_message=False)
 

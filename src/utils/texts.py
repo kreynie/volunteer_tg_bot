@@ -2,11 +2,11 @@
 help_text = "Пока нет справки"
 
 # Users section
-add_users_text = "➕ Пользователи"
-edit_users_text = "📝 Пользователя"
-remove_users_text = "❌ Пользователь"
-list_users_text = "📃 Список"
-list_shifts_text = "📅 Логи"
+add_users = "➕ Пользователи"
+edit_users = "📝 Пользователя"
+remove_users = "❌ Пользователь"
+list_users = "📃 Список"
+list_shifts = "📅 Логи"
 
 # Rules Section
 edit_rules_text = "📃 Редактировать правила"

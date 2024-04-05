@@ -5,9 +5,9 @@ from src.utils import texts
 admin_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text=texts.add_users_text),
-            KeyboardButton(text=texts.remove_users_text),
-            KeyboardButton(text=texts.list_users_text),
+            KeyboardButton(text=texts.add_users),
+            KeyboardButton(text=texts.remove_users),
+            KeyboardButton(text=texts.list_users),
         ],
         [
             KeyboardButton(text=texts.add_rule_text),
@@ -15,7 +15,7 @@ admin_keyboard = ReplyKeyboardMarkup(
             KeyboardButton(text=texts.list_rules),
         ],
         [
-            KeyboardButton(text=texts.list_shifts_text),
+            KeyboardButton(text=texts.list_shifts),
             KeyboardButton(text=texts.notifications),
         ],
     ],
