@@ -23,16 +23,22 @@ class ShiftsService:
             offset: int = 0,
             limit: int = 0,
             order_by: QueryOrderBySchema | list[QueryOrderBySchema] | None = None,
+            filter_by: dict | None = None,
     ) -> list[ShiftLogSchema]:
         async with self.uow:
             if not order_by:
                 order_by = QueryOrderBySchema(column_name="id", sort_desc=True)
             order_by = self.uow.shift_logs.build_order(order_by)
 
+            if not filter_by:
+                filter_by = {}
+            if user_id is not None:
+                filter_by["user_id"] = user_id
+
             shift_logs: list[ShiftLogSchema] = await self.uow.shift_logs.find_all(
                 offset=offset,
                 limit=limit,
-                filter_by={"user_id": user_id} if user_id else None,
+                filter_by=filter_by,
                 order_by=order_by,
             )
             if not shift_logs:
