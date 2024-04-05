@@ -1,4 +1,4 @@
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import and_, ColumnElement, delete, insert, select, update
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import MappedColumn
@@ -31,7 +31,10 @@ class SQLAlchemyRepository:
             filter_by: dict,
             returning: MappedColumn | None = None,
     ):
-        stmt = update(self.model).values(**data).filter_by(**filter_by)
+        stmt = update(self.model).values(**data)
+        if filter_by:
+            filter_by = self.build_filter(**filter_by)
+            stmt = stmt.where(filter_by)
         if returning:
             stmt = stmt.returning(returning)
         try:
@@ -50,7 +53,8 @@ class SQLAlchemyRepository:
     ):
         stmt = select(self.model)
         if filter_by:
-            stmt = stmt.filter_by(**filter_by)
+            filter_by = self.build_filter(**filter_by)
+            stmt = stmt.where(filter_by)
         if order_by:
             stmt = stmt.order_by(*order_by)
         if offset:
@@ -65,7 +69,9 @@ class SQLAlchemyRepository:
 
     @handle_database_error
     async def find_one(self, **filter_by):
-        stmt = select(self.model).filter_by(**filter_by)
+        filter_by = self.build_filter(**filter_by)
+
+        stmt = select(self.model).where(filter_by)
         res = await self.session.execute(stmt)
         res = res.scalar_one_or_none()
         if res is not None:
@@ -78,7 +84,9 @@ class SQLAlchemyRepository:
             returning: MappedColumn | None = None,
             **filter_by,
     ):
-        stmt = delete(self.model).filter_by(**filter_by)
+        filter_by = self.build_filter(**filter_by)
+
+        stmt = delete(self.model).where(filter_by)
         if returning is not None:
             stmt = stmt.returning(returning)
         try:
@@ -97,3 +105,28 @@ class SQLAlchemyRepository:
             if column:
                 new_order.append(column.desc() if sort_schema.sort_desc else column.asc())
         return new_order
+
+    def build_filter(self, **kwargs) -> ColumnElement[bool]:
+        filter_clauses = []
+
+        operators = {
+            "__ne": lambda col, val: col != val,
+            "__lt": lambda col, val: col < val,
+            "__gt": lambda col, val: col > val,
+            "__lte": lambda col, val: col <= val,
+            "__gte": lambda col, val: col >= val,
+            "__in": lambda col, val: col.in_(val),
+            "__not_in": lambda col, val: col.not_in(val),
+            "__like": lambda col, val: col.like(val),
+        }
+
+        for key, value in kwargs.items():
+            for op, op_func in operators.items():
+                if op in key:
+                    column_name = key.replace(op, "")
+                    filter_clauses.append(op_func(getattr(self.model, column_name), value))
+                    break
+            else:
+                filter_clauses.append(getattr(self.model, key) == value)
+
+        return and_(*filter_clauses)
