@@ -67,7 +67,8 @@ async def toggle_shift(message: Message, shift_enum: ShiftEnum, uow: UOWDep = Un
         return await message.answer("Произошла непредвиденная ошибка при попытке записи\n"
                                     f"<code>{e}</code>")
 
-    await message.answer("Записано")
+    action_emoji = "🟢" if shift_enum == ShiftEnum.enter else "🔴"
+    await message.answer(f"Записано {action_emoji}")
 
     action_message = "зашел на смену" if shift_enum == ShiftEnum.enter else "вышел со смены"
     get_users_to_notify = await NotificationsService(uow).get_users_with_notification(
