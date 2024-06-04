@@ -167,8 +167,8 @@ async def user_removal_state(message: Message, uow: UOWDep = UnitOfWork()):
         await UsersService(uow).delete_user(user)
     except EntityNotFound:
         return await message.answer("Такого человека нет в базе")
-
-    await message.answer(f"Удалён {hbold(message.text)}")
+    else:
+        await message.answer(f"Удалён {hbold(message.text)}")
 
 
 @router.message(TextFilter(texts.list_users))
